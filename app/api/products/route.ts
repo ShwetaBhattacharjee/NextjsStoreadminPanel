@@ -149,7 +149,7 @@ export const GET = async (req: NextRequest) => {
     return new NextResponse("Internal Error", { status: 500 });
   }
 };
-*/
+
 // GET handler for Onsales
 export const getOnsales = async (req: NextRequest) => {
   try {
@@ -164,6 +164,6 @@ export const getOnsales = async (req: NextRequest) => {
     console.log("[onsales_GET]", err);
     return new NextResponse("Internal Error", { status: 500 });
   }
-};
+};*/
 
 export const dynamic = "force-dynamic";
