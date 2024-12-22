@@ -105,7 +105,7 @@ export const GET = async (req: NextRequest) => {
 };
 
 // POST handler for Onsale
-export const createOnsale = async (req: NextRequest) => {
+/*export const createOnsale = async (req: NextRequest) => {
   try {
     const { userId } = auth();
 
@@ -149,7 +149,7 @@ export const createOnsale = async (req: NextRequest) => {
     return new NextResponse("Internal Error", { status: 500 });
   }
 };
-
+*/
 // GET handler for Onsales
 export const getOnsales = async (req: NextRequest) => {
   try {
