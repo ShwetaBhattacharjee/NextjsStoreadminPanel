@@ -4,6 +4,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { connectToDB } from "@/lib/mongoDB";
 import Product from "@/lib/models/Product";
 import Collection from "@/lib/models/Collection";
+import Onsale from "@/lib/models/Onsale"; // Import Onsale model
 
 export const POST = async (req: NextRequest) => {
   try {
@@ -20,7 +21,8 @@ export const POST = async (req: NextRequest) => {
       description,
       media,
       category,
-      collections,
+      collections, // collections field for Collection model
+      onsales, // onsales field for Onsale model
       tags,
       sizes,
       colors,
@@ -39,7 +41,8 @@ export const POST = async (req: NextRequest) => {
       description,
       media,
       category,
-      collections,
+      collections, // Save collections field
+      onsales, // Save onsales field
       tags,
       sizes,
       colors,
@@ -49,12 +52,24 @@ export const POST = async (req: NextRequest) => {
 
     await newProduct.save();
 
+    // Handle Collection
     if (collections) {
       for (const collectionId of collections) {
         const collection = await Collection.findById(collectionId);
         if (collection) {
           collection.products.push(newProduct._id);
           await collection.save();
+        }
+      }
+    }
+
+    // Handle Onsale
+    if (onsales) {
+      for (const onsaleId of onsales) {
+        const onsale = await Onsale.findById(onsaleId); // Use Onsale model
+        if (onsale) {
+          onsale.products.push(newProduct._id);
+          await onsale.save();
         }
       }
     }
@@ -72,7 +87,8 @@ export const GET = async (req: NextRequest) => {
 
     const products = await Product.find()
       .sort({ createdAt: "desc" })
-      .populate({ path: "collections", model: Collection });
+      .populate({ path: "collections", model: Collection }) // Populate the collections field
+      .populate({ path: "onsales", model: Onsale }); // Populate the onsales field
 
     return NextResponse.json(products, { status: 200 });
   } catch (err) {
