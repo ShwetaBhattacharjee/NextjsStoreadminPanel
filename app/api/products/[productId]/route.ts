@@ -1,10 +1,9 @@
-import { auth } from "@clerk/nextjs";
-import { NextRequest, NextResponse } from "next/server";
-
-import { connectToDB } from "@/lib/mongoDB";
-import Product from "@/lib/models/Product";
 import Collection from "@/lib/models/Collection";
-import Onsale from "@/lib/models/Onsale"; // Import Onsale model
+import Product from "@/lib/models/Product";
+import { connectToDB } from "@/lib/mongoDB";
+import { auth } from "@clerk/nextjs";
+
+import { NextRequest, NextResponse } from "next/server";
 
 export const GET = async (
   req: NextRequest,
@@ -13,9 +12,10 @@ export const GET = async (
   try {
     await connectToDB();
 
-    const product = await Product.findById(params.productId)
-      .populate({ path: "collections", model: Collection })
-      .populate({ path: "onsales", model: Onsale }); // Populate the onsales field
+    const product = await Product.findById(params.productId).populate({
+      path: "collections",
+      model: Collection,
+    });
 
     if (!product) {
       return new NextResponse(
@@ -23,7 +23,6 @@ export const GET = async (
         { status: 404 }
       );
     }
-
     return new NextResponse(JSON.stringify(product), {
       status: 200,
       headers: {
@@ -66,7 +65,6 @@ export const POST = async (
       media,
       category,
       collections,
-      onsales, // onsales field
       tags,
       sizes,
       colors,
@@ -80,20 +78,26 @@ export const POST = async (
       });
     }
 
-    // Handle collections
     const addedCollections = collections.filter(
       (collectionId: string) => !product.collections.includes(collectionId)
     );
+    // included in new data, but not included in the previous data
+
     const removedCollections = product.collections.filter(
       (collectionId: string) => !collections.includes(collectionId)
     );
+    // included in previous data, but not included in the new data
 
+    // Update collections
     await Promise.all([
+      // Update added collections with this product
       ...addedCollections.map((collectionId: string) =>
         Collection.findByIdAndUpdate(collectionId, {
           $push: { products: product._id },
         })
       ),
+
+      // Update removed collections without this product
       ...removedCollections.map((collectionId: string) =>
         Collection.findByIdAndUpdate(collectionId, {
           $pull: { products: product._id },
@@ -101,28 +105,7 @@ export const POST = async (
       ),
     ]);
 
-    // Handle onsales
-    const addedOnsales = onsales.filter(
-      (onsaleId: string) => !product.onsales.includes(onsaleId)
-    );
-    const removedOnsales = product.onsales.filter(
-      (onsaleId: string) => !onsales.includes(onsaleId)
-    );
-
-    await Promise.all([
-      ...addedOnsales.map((onsaleId: string) =>
-        Onsale.findByIdAndUpdate(onsaleId, {
-          $push: { products: product._id },
-        })
-      ),
-      ...removedOnsales.map((onsaleId: string) =>
-        Onsale.findByIdAndUpdate(onsaleId, {
-          $pull: { products: product._id },
-        })
-      ),
-    ]);
-
-    // Update the product
+    // Update product
     const updatedProduct = await Product.findByIdAndUpdate(
       product._id,
       {
@@ -131,7 +114,6 @@ export const POST = async (
         media,
         category,
         collections,
-        onsales,
         tags,
         sizes,
         colors,
@@ -139,8 +121,7 @@ export const POST = async (
         expense,
       },
       { new: true }
-    ).populate({ path: "collections", model: Collection })
-     .populate({ path: "onsales", model: Onsale });
+    ).populate({ path: "collections", model: Collection });
 
     await updatedProduct.save();
 
@@ -175,19 +156,14 @@ export const DELETE = async (
 
     await Product.findByIdAndDelete(product._id);
 
-    // Update collections and onsales by pulling the deleted product
-    await Promise.all([
-      ...product.collections.map((collectionId: string) =>
+    // Update collections
+    await Promise.all(
+      product.collections.map((collectionId: string) =>
         Collection.findByIdAndUpdate(collectionId, {
           $pull: { products: product._id },
         })
-      ),
-      ...product.onsales.map((onsaleId: string) =>
-        Onsale.findByIdAndUpdate(onsaleId, {
-          $pull: { products: product._id },
-        })
-      ),
-    ]);
+      )
+    );
 
     return new NextResponse(JSON.stringify({ message: "Product deleted" }), {
       status: 200,
