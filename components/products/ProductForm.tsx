@@ -184,9 +184,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ initialData }) => {
                     value={field.value}
                     onChange={(url) => field.onChange([...field.value, url])}
                     onRemove={(url) =>
-                      field.onChange([
-                        field.value.filter((image) => image !== url),
-                      ])
+                      field.onChange([field.value.filter((image) => image !== url)])
                     }
                   />
                 </FormControl>
@@ -203,7 +201,13 @@ const ProductForm: React.FC<ProductFormProps> = ({ initialData }) => {
               <FormItem>
                 <FormLabel>On Sale</FormLabel>
                 <FormControl>
-                  <Input type="checkbox" {...field} checked={field.value} />
+                  {/* Adjust the checkbox */}
+                  <Input
+                    type="checkbox"
+                    {...field}
+                    checked={field.value}  // Ensure only 'checked' is used for boolean state
+                    onChange={(e) => field.onChange(e.target.checked)}  // Handle change as boolean
+                  />
                 </FormControl>
                 <FormMessage className="text-red-1" />
               </FormItem>
@@ -276,9 +280,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ initialData }) => {
                       value={field.value}
                       onChange={(tag) => field.onChange([...field.value, tag])}
                       onRemove={(tagToRemove) =>
-                        field.onChange([
-                          field.value.filter((tag) => tag !== tagToRemove),
-                        ])
+                        field.onChange([field.value.filter((tag) => tag !== tagToRemove)])
                       }
                     />
                   </FormControl>
@@ -298,15 +300,9 @@ const ProductForm: React.FC<ProductFormProps> = ({ initialData }) => {
                         placeholder="Collections"
                         collections={collections}
                         value={field.value}
-                        onChange={(_id) =>
-                          field.onChange([...field.value, _id])
-                        }
+                        onChange={(_id) => field.onChange([...field.value, _id])}
                         onRemove={(idToRemove) =>
-                          field.onChange([
-                            field.value.filter(
-                              (collectionId) => collectionId !== idToRemove
-                            ),
-                          ])
+                          field.onChange([field.value.filter((collectionId) => collectionId !== idToRemove)])
                         }
                       />
                     </FormControl>
@@ -325,15 +321,9 @@ const ProductForm: React.FC<ProductFormProps> = ({ initialData }) => {
                     <MultiText
                       placeholder="Colors"
                       value={field.value}
-                      onChange={(color) =>
-                        field.onChange([...field.value, color])
-                      }
+                      onChange={(color) => field.onChange([...field.value, color])}
                       onRemove={(colorToRemove) =>
-                        field.onChange([
-                          field.value.filter(
-                            (color) => color !== colorToRemove
-                          ),
-                        ])
+                        field.onChange([field.value.filter((color) => color !== colorToRemove)])
                       }
                     />
                   </FormControl>
@@ -351,13 +341,9 @@ const ProductForm: React.FC<ProductFormProps> = ({ initialData }) => {
                     <MultiText
                       placeholder="Sizes"
                       value={field.value}
-                      onChange={(size) =>
-                        field.onChange([...field.value, size])
-                      }
+                      onChange={(size) => field.onChange([...field.value, size])}
                       onRemove={(sizeToRemove) =>
-                        field.onChange([
-                          field.value.filter((size) => size !== sizeToRemove),
-                        ])
+                        field.onChange([field.value.filter((size) => size !== sizeToRemove)])
                       }
                     />
                   </FormControl>
