@@ -4,7 +4,6 @@ import { NextRequest, NextResponse } from "next/server";
 import { connectToDB } from "@/lib/mongoDB";
 import Product from "@/lib/models/Product";
 import Collection from "@/lib/models/Collection";
-import Onsale from "@/lib/models/Onsale"; // Import Onsale model
 
 export const POST = async (req: NextRequest) => {
   try {
@@ -22,7 +21,6 @@ export const POST = async (req: NextRequest) => {
       media,
       category,
       collections,
-      onsales, // onsales field
       tags,
       sizes,
       colors,
@@ -42,7 +40,6 @@ export const POST = async (req: NextRequest) => {
       media,
       category,
       collections,
-      onsales, // Add onsales to the new product
       tags,
       sizes,
       colors,
@@ -52,24 +49,12 @@ export const POST = async (req: NextRequest) => {
 
     await newProduct.save();
 
-    // Handle collections
     if (collections) {
       for (const collectionId of collections) {
         const collection = await Collection.findById(collectionId);
         if (collection) {
           collection.products.push(newProduct._id);
           await collection.save();
-        }
-      }
-    }
-
-    // Handle onsales
-    if (onsales) {
-      for (const onsaleId of onsales) {
-        const onsale = await Onsale.findById(onsaleId); // Use Onsale model
-        if (onsale) {
-          onsale.products.push(newProduct._id);
-          await onsale.save();
         }
       }
     }
@@ -87,8 +72,7 @@ export const GET = async (req: NextRequest) => {
 
     const products = await Product.find()
       .sort({ createdAt: "desc" })
-      .populate({ path: "collections", model: Collection })
-      .populate({ path: "onsales", model: Onsale }); // Populate the onsales field
+      .populate({ path: "collections", model: Collection });
 
     return NextResponse.json(products, { status: 200 });
   } catch (err) {
