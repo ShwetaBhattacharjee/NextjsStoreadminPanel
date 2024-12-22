@@ -33,9 +33,9 @@ export const columns: ColumnDef<ProductType>[] = [
     header: "Expense ($)",
   },
   {
-    accessorKey: "onsale",
-    header: "On Sale",
-    cell: ({ row }) => (row.original.OnSales ? "Yes" : "No"),
+    accessorKey: "collections", // Assuming collections will be displayed
+    header: "Collections",
+    cell: ({ row }) => row.original.collections.join(", "), // Displaying collections as a list of string values
   },
   {
     id: "actions",
