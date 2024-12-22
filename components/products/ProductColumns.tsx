@@ -25,13 +25,13 @@ export const columns: ColumnDef<ProductType>[] = [
     accessorKey: "collections",
     header: "Collections",
     cell: ({ row }) =>
-      row.original.collections.map((collection) => collection.title).join(", "),
+      row.original.collections.map((collection) => collection.title).join(", "), // Collections titles joined by commas
   },
   {
     accessorKey: "onsales", // Added onsales field
     header: "On Sales",
     cell: ({ row }) =>
-      row.original.onsales.map((onsale) => onsale.title).join(", "), // Similar to collections, display onsales titles
+      row.original.onsales.map((onsale) => onsale.title).join(", "), // Onsales titles joined by commas, similar to collections
   },
   {
     accessorKey: "price",
