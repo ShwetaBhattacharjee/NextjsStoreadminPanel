@@ -22,9 +22,10 @@ import mongoose from "mongoose";
 
 // ============ NEW CODE ============
 declare global {
+  // eslint-disable-next-line no-var
   var mongoose: {
-    conn: typeof mongoose | null;
-    promise: Promise<typeof mongoose> | null;
+    conn: mongoose.Connection | null;
+    promise: Promise<mongoose.Mongoose> | null;
   };
 }
 
@@ -34,12 +35,12 @@ if (!cached) {
   cached = global.mongoose = { conn: null, promise: null };
 }
 
-export const connectToDB = async (): Promise<void> => {  // Changed return type to void
+export const connectToDB = async (): Promise<void> => {
   mongoose.set("strictQuery", true);
   
   if (cached.conn) {
     console.log("MongoDB is already connected");
-    return;  // Just return without value
+    return;
   }
 
   if (!cached.promise) {
@@ -56,7 +57,8 @@ export const connectToDB = async (): Promise<void> => {  // Changed return type 
   }
 
   try {
-    cached.conn = await cached.promise;
+    const mongooseInstance = await cached.promise;
+    cached.conn = mongooseInstance.connection;
     console.log("MongoDB is connected");
   } catch (err) {
     cached.promise = null;
