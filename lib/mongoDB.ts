@@ -34,12 +34,12 @@ if (!cached) {
   cached = global.mongoose = { conn: null, promise: null };
 }
 
-export const connectToDB = async (): Promise<typeof mongoose> => {
+export const connectToDB = async (): Promise<void> => {  // Changed return type to void
   mongoose.set("strictQuery", true);
   
   if (cached.conn) {
     console.log("MongoDB is already connected");
-    return cached.conn;
+    return;  // Just return without value
   }
 
   if (!cached.promise) {
@@ -63,7 +63,5 @@ export const connectToDB = async (): Promise<typeof mongoose> => {
     console.error("MongoDB connection error:", err);
     throw err;
   }
-
-  return cached.conn;
 };
 // ============ END NEW CODE ============
